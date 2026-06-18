@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import studentsData from "../data/students.json";
 import { bubbleConfig } from "../config/bubbleConfig";
+import TicketVisual from "../components/TicketVisual";
+import { toPng } from "html-to-image";
 
 const defaultColors = [
   { eng: "red", hex: "#dc2626" },
@@ -26,6 +28,9 @@ export default function Home() {
   const [toastVisible, setToastVisible] = useState(false);
   const [bubbleText, setBubbleText] = useState("");
   const [defaultTheme, setDefaultTheme] = useState({ eng: "red", hex: "#dc2626" });
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [ticketUrl, setTicketUrl] = useState("");
+  const ticketRef = useRef(null);
 
   const randomizeDefaultTheme = () => {
     const randomIndex = Math.floor(Math.random() * defaultColors.length);
@@ -35,6 +40,12 @@ export default function Home() {
   useEffect(() => {
     randomizeDefaultTheme();
   }, []);
+
+  useEffect(() => {
+    if (matchedStudent && typeof window !== "undefined") {
+      setTicketUrl(`${window.location.origin}/ticket?id=${matchedStudent.studentId}`);
+    }
+  }, [matchedStudent]);
 
   useEffect(() => {
     if (toastVisible) {
@@ -48,6 +59,26 @@ export default function Home() {
   const triggerToast = (msg) => {
     setToastMessage(msg);
     setToastVisible(true);
+  };
+
+  const downloadTicket = async () => {
+    if (isDownloading || !matchedStudent || !ticketRef.current) return;
+    setIsDownloading(true);
+    try {
+      const dataUrl = await toPng(ticketRef.current, {
+        cacheBust: true,
+        pixelRatio: 3,
+        style: { transform: 'none' }
+      });
+      const link = document.createElement("a");
+      link.download = `ticket-${matchedStudent.studentId}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleInputChange = (e) => {
@@ -166,10 +197,61 @@ export default function Home() {
                 <p className="user-id">รหัสนักศึกษา: {matchedStudent.studentId}</p>
               </div>
 
-              <div className="action-buttons">
-                <button className="btn-primary" onClick={handleReset}>
+
+              <div className="action-buttons" style={{ flexDirection: "column", gap: "0.75rem" }}>
+                <button
+                  onClick={downloadTicket}
+                  disabled={isDownloading}
+                  className="btn-primary"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "0.5rem",
+                    opacity: isDownloading ? 0.7 : 1,
+                    cursor: isDownloading ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {isDownloading ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                      </svg>
+                      กำลังดาวน์โหลด...
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      ดาวโหลดตั๋ว
+                    </>
+                  )}
+                </button>
+                <button className="btn-theme-outline" onClick={handleReset}>
                   ค้นหาอีกครั้ง
                 </button>
+              </div>
+            </div>
+          )}
+
+          {/* Hidden TicketVisual for html-to-image capture */}
+          {searchStatus === "result" && matchedStudent && (
+            <div style={{ position: "absolute", left: "-9999px", top: 0, pointerEvents: "none" }}>
+              <div 
+                ref={ticketRef} 
+                style={{ 
+                  display: "inline-block", 
+                  width: "fit-content",
+                  padding: "0", // removed padding to prevent extra space around the ticket
+                  backgroundColor: "transparent" 
+                }}
+              >
+                <div style={{ width: typeof window !== 'undefined' && window.innerWidth >= 640 ? "800px" : (typeof window !== 'undefined' ? `${Math.min(window.innerWidth - 32, 420)}px` : "100%") }}>
+                  <TicketVisual student={matchedStudent} ticketUrl={ticketUrl} style={{ margin: 0 }} />
+                </div>
               </div>
             </div>
           )}
