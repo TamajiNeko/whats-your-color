@@ -9,6 +9,11 @@ const lineSeedSans = localFont({
 });
 
 export const metadata = {
+  metadataBase: new URL(
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"
+  ),
   title: "น้องอยู่สีอะไร?",
   description: "ระบบตรวจสอบสีกิจกรรมรับน้อง 69 - คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มรพส.",
   openGraph: {
