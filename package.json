@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "node scripts/parse-xlsx.js",
     "dev": "next dev",
+    "prebuild": "node scripts/parse-xlsx.js",
     "build": "next build",
     "start": "next start"
   },
@@ -15,6 +17,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "babel-plugin-react-compiler": "1.0.0",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "xlsx": "^0.18.5"
   }
 }

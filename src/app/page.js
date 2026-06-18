@@ -1,65 +1,229 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import studentsData from "../data/students.json";
+import { bubbleConfig } from "../config/bubbleConfig";
+
+const defaultColors = [
+  { eng: "red", hex: "#dc2626" },
+  { eng: "yellow", hex: "#eab308" },
+  { eng: "brown", hex: "#78350f" },
+  { eng: "black", hex: "#1e293b" },
+  { eng: "blue", hex: "#1d4ed8" },
+  { eng: "pink", hex: "#db2777" },
+  { eng: "orange", hex: "#ea580c" },
+  { eng: "green", hex: "#15803d" },
+  { eng: "sky_blue", hex: "#0284c7" },
+  { eng: "purple", hex: "#a855f7" }
+];
 
 export default function Home() {
+  const [studentId, setStudentId] = useState("");
+  const [searchStatus, setSearchStatus] = useState("idle");
+  const [matchedStudent, setMatchedStudent] = useState(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
+  const [bubbleText, setBubbleText] = useState("");
+  const [defaultTheme, setDefaultTheme] = useState({ eng: "red", hex: "#dc2626" });
+
+  const randomizeDefaultTheme = () => {
+    const randomIndex = Math.floor(Math.random() * defaultColors.length);
+    setDefaultTheme(defaultColors[randomIndex]);
+  };
+
+  useEffect(() => {
+    randomizeDefaultTheme();
+  }, []);
+
+  useEffect(() => {
+    if (toastVisible) {
+      const timer = setTimeout(() => {
+        setToastVisible(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastVisible]);
+
+  const triggerToast = (msg) => {
+    setToastMessage(msg);
+    setToastVisible(true);
+  };
+
+  const handleInputChange = (e) => {
+    const val = e.target.value.replace(/[^0-9]/g, "");
+    if (val.length <= 10) {
+      setStudentId(val);
+    }
+  };
+
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    
+    const trimmedId = studentId.trim();
+    if (trimmedId.length !== 10) return;
+
+    const student = studentsData.find(
+      (s) => s.studentId === trimmedId
+    );
+
+    if (student) {
+      setMatchedStudent(student);
+      setSearchStatus("result");
+      
+      const templates = bubbleConfig[student.gender] || bubbleConfig.m;
+      const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+      setBubbleText(randomTemplate.replace("{color}", student.colorThai));
+    } else {
+      setMatchedStudent(null);
+      setSearchStatus("not_found");
+      setBubbleText("");
+    }
+  };
+
+  const handleReset = () => {
+    setStudentId("");
+    setMatchedStudent(null);
+    setSearchStatus("idle");
+    setBubbleText("");
+    randomizeDefaultTheme();
+  };
+
+  const getBgClass = () => {
+    if (searchStatus === "result" && matchedStudent) {
+      return `bg-theme-${matchedStudent.colorEng}`;
+    }
+    return `bg-theme-${defaultTheme.eng}`;
+  };
+
+  const getThemeStyles = () => {
+    const color = (searchStatus === "result" && matchedStudent)
+      ? matchedStudent.colorHex
+      : defaultTheme.hex;
+
+    return {
+      "--theme-primary": color,
+      "--theme-shadow-color": `${color}26`,
+      "--theme-gradient": `linear-gradient(135deg, ${color}dd 0%, ${color}ff 100%)`,
+      "--theme-shadow-btn": `${color}40`,
+      "--theme-shadow-btn-hover": `${color}59`,
+      "--theme-bubble-bg": color,
+      "--theme-shadow-bubble": `${color}4d`,
+    };
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className={`transition-all duration-700 ease-in-out main-layout min-h-screen ${getBgClass()}`} style={getThemeStyles()}>
+      <div className={`toast ${toastVisible ? "show" : ""}`}>
+        {toastMessage}
+      </div>
+
+      <div className="card-wrapper">
+          {searchStatus === "idle" && (
+            <form onSubmit={handleSearch} className="animate-fade-in" id="search-section">
+              <h2>น้องอยู่สีอะไร?</h2>
+              <p style={{ color: "#64748b", fontSize: "0.95rem", marginBottom: "1.5rem", fontWeight: 500 }}>
+                กรอกรหัสนักศึกษาของน้อง เพื่อตรวจสอบสี
+              </p>
+              
+              <div className="input-group">
+                <input
+                  type="text"
+                  id="inputId"
+                  placeholder="กรอกรหัสนักศึกษา 10 หลัก..."
+                  value={studentId}
+                  onChange={handleInputChange}
+                  maxLength={10}
+                  pattern="[0-9]{10}"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  required
+                />
+              </div>
+              <button type="submit" className="btn-primary">
+                ค้นหาสีของน้อง
+              </button>
+            </form>
+          )}
+
+          {searchStatus === "result" && matchedStudent && (
+            <div className="animate-fade-in" id="result-section">
+              <div className="profile-card">
+                <div className="avatar-wrapper">
+                  <img
+                    src={matchedStudent.profilePic}
+                    className="profile-pic"
+                  />
+                  <div className="speech-bubble">
+                    {bubbleText}
+                  </div>
+                </div>
+                <h3 className="user-name">
+                  <span className="name-block">{matchedStudent.title}{matchedStudent.firstName}</span>
+                  {" "}
+                  <span className="name-block">{matchedStudent.lastName}</span>
+                </h3>
+                <p className="user-id">รหัสนักศึกษา: {matchedStudent.studentId}</p>
+              </div>
+
+              <div className="action-buttons">
+                <button className="btn-primary" onClick={handleReset}>
+                  ค้นหาอีกครั้ง
+                </button>
+              </div>
+            </div>
+          )}
+
+          {searchStatus === "not_found" && (
+            <div className="animate-fade-in" id="not-found-section">
+              <div className="profile-card" style={{ padding: "3rem 1.5rem" }}>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "1.5rem" }}>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="64"
+                    height="64"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#ef4444"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <line x1="8" y1="11" x2="14" y2="11"></line>
+                  </svg>
+                </div>
+                <h3 className="user-name" style={{ color: "#ef4444" }}>
+                  ไม่พบข้อมูลสีของน้อง
+                </h3>
+                <p className="user-id" style={{ marginTop: "0.5rem" }}>
+                  รหัสนักศึกษา: {studentId}
+                </p>
+                <p style={{ color: "#64748b", fontSize: "0.9rem", marginTop: "1rem", lineHeight: 1.5 }}>
+                  รหัสนักศึกษาน้องถูกหรือเปล่าคะดูดีๆนะ
+                </p>
+              </div>
+
+              <div className="action-buttons">
+                <button className="btn-primary" style={{ background: "#475569" }} onClick={handleReset}>
+                  ค้นหาใหม่
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+      <div className="copyright">
+        &copy; {new Date().getFullYear()}{" "}
+        <a href="https://www.instagram.com/neko_0739" target="_blank" rel="noopener noreferrer">
+          Neko
+        </a>
+        {" & "}
+        <a href="https://www.instagram.com/zero_wa_o" target="_blank" rel="noopener noreferrer">
+          Zero
+        </a>
+        <span> to Nong 69 ♡</span>
+      </div>
     </div>
   );
 }
