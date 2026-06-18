@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
 import studentsData from "../data/students.json";
 import { bubbleConfig } from "../config/bubbleConfig";
 

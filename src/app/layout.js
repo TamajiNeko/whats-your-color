@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
 const lineSeedSans = localFont({
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
     <html lang="th" className={`${lineSeedSans.variable} h-full`}>
       <body className="h-full antialiased font-sans">
         {children}
+        <Analytics />
       </body>
     </html>
   );
