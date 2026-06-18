@@ -179,13 +179,13 @@ function TicketContent() {
               <div className="void-stamp">VOID</div>
               
               <div className="ticket-header-brand ticket-header-colored" style={{ backgroundColor: "#ef4444" }}>
-                <span className="brand-logo" style={{ color: "rgba(255,255,255,0.95)", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                <span className="brand-logo" style={{ color: "rgba(255,255,255,0.95)", display: "inline-flex", alignItems: "center", gap: "6px", lineHeight: 1 }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, display: "block" }}>
                     <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
                     <line x1="12" y1="9" x2="12" y2="13" />
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
-                  ENG PSRU ERROR PASS
+                  <span style={{ display: "inline-block", lineHeight: 1 }}>ENG PSRU ERROR PASS</span>
                 </span>
                 <span className="ticket-serial" style={{ color: "rgba(255,255,255,0.8)" }}>NO. 0000000000</span>
               </div>

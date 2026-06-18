@@ -395,6 +395,10 @@ button:active {
   letter-spacing: 0.1em;
   color: var(--theme-primary, #475569);
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  line-height: 1;
 }
 
 .ticket-serial {

@@ -46,7 +46,7 @@ export default function TicketVisual({ student, ticketUrl, className = "", style
         >
           <span
             className="brand-logo"
-            style={{ display: "flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.95)" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: "6px", color: "rgba(255,255,255,0.95)", lineHeight: 1 }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -58,12 +58,12 @@ export default function TicketVisual({ student, ticketUrl, className = "", style
               strokeWidth="2.5"
               strokeLinecap="round"
               strokeLinejoin="round"
-              style={{ flexShrink: 0 }}
+              style={{ flexShrink: 0, display: "block" }}
             >
               <path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z" />
               <path d="M13 5v14" strokeDasharray="3 3" />
             </svg>
-            ENG PSRU boarding pass
+            <span style={{ display: "inline-block", lineHeight: 1 }}>ENG PSRU boarding pass</span>
           </span>
           <span className="ticket-serial" style={{ color: "rgba(255,255,255,0.8)" }}>
             NO. {student.studentId}
