@@ -341,7 +341,7 @@ button:active {
 /* Ticket Layout Styles */
 .ticket-container {
   width: 100%;
-  max-width: 420px;
+  max-width: 320px;
   margin: 0 auto 1.2rem;
   display: flex;
   flex-direction: column;
@@ -354,7 +354,7 @@ button:active {
   -webkit-backdrop-filter: blur(20px);
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
-  padding: 1.6rem 1.2rem 1rem;
+  padding: 1.6rem 1.2rem 1.6rem;
   border: none;
   position: relative;
   display: flex;
@@ -518,6 +518,8 @@ button:active {
   margin: 1px 0;
   line-height: 1.2;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .passenger-id {
@@ -551,7 +553,7 @@ button:active {
 }
 
 .detail-val {
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: #0f172a;
   font-weight: 700;
   line-height: 1.2;

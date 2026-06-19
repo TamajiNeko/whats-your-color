@@ -300,7 +300,7 @@ export default function Home() {
                   backgroundColor: "transparent" 
                 }}
               >
-                <div style={{ width: typeof window !== 'undefined' && window.innerWidth >= 640 ? "800px" : (typeof window !== 'undefined' ? `${Math.min(window.innerWidth - 32, 420)}px` : "100%") }}>
+                <div style={{ width: typeof window !== 'undefined' && window.innerWidth >= 640 ? "800px" : (typeof window !== 'undefined' ? `${Math.min(window.innerWidth - 32, 320)}px` : "100%") }}>
                   <TicketVisual student={matchedStudent} ticketUrl={ticketUrl} style={{ margin: 0 }} />
                 </div>
               </div>
