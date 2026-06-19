@@ -38,20 +38,49 @@ function TicketContent() {
   }, []);
 
 
-  const convertToBase64 = async (url) => {
-    try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      });
-    } catch (err) {
-      console.error("Failed to convert image to base64:", err);
-      return url;
-    }
+  const convertToBase64 = async (url, targetSize = 150) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = targetSize;
+          canvas.height = targetSize;
+          const ctx = canvas.getContext("2d");
+          
+          // Clear canvas (transparent background)
+          ctx.clearRect(0, 0, targetSize, targetSize);
+          
+          // Fit image (like object-fit: contain)
+          const wrh = img.width / img.height;
+          let newWidth = targetSize;
+          let newHeight = targetSize;
+          let x = 0;
+          let y = 0;
+          
+          if (wrh > 1) {
+            newHeight = targetSize / wrh;
+            y = (targetSize - newHeight) / 2;
+          } else {
+            newWidth = targetSize * wrh;
+            x = (targetSize - newWidth) / 2;
+          }
+          
+          ctx.drawImage(img, x, y, newWidth, newHeight);
+          
+          const base64 = canvas.toDataURL("image/png");
+          resolve(base64);
+        } catch (err) {
+          console.error("Failed to resize image in canvas:", err);
+          resolve(url);
+        }
+      };
+      img.onerror = () => {
+        resolve(url);
+      };
+      img.src = url;
+    });
   };
 
   useEffect(() => {
