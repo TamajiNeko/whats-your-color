@@ -810,5 +810,13 @@ button:active {
   }
 }
 
-
-
+@media (max-width: 480px) {
+  .brand-logo {
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+  .ticket-serial {
+    font-size: 0.58rem;
+    white-space: nowrap;
+  }
+}

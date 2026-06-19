@@ -138,7 +138,7 @@ function TicketContent() {
         <>
           <TicketVisual student={matchedStudent} ticketUrl={shareUrl} className="animate-fade-in" />
 
-          <div className="action-buttons animate-fade-in" style={{ width: "100%", maxWidth: "390px", justifyContent: "center" }}>
+          <div className="action-buttons animate-fade-in" style={{ width: "100%", maxWidth: "420px", justifyContent: "center" }}>
             <Link
               href="/"
               style={{
@@ -297,7 +297,7 @@ function TicketContent() {
             </div>
           </div>
 
-          <div className="action-buttons animate-fade-in" style={{ width: "100%", maxWidth: "390px", justifyContent: "center" }}>
+          <div className="action-buttons animate-fade-in" style={{ width: "100%", maxWidth: "420px", justifyContent: "center" }}>
             <Link
               href="/"
               style={{
