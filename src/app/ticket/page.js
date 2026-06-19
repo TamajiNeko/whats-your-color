@@ -38,6 +38,22 @@ function TicketContent() {
   }, []);
 
 
+  const convertToBase64 = async (url) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.error("Failed to convert image to base64:", err);
+      return url;
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       setShareUrl(window.location.href);
@@ -55,8 +71,10 @@ function TicketContent() {
     );
 
     if (student) {
-      setMatchedStudent(student);
-      setSearchStatus("result");
+      convertToBase64(student.profilePic).then((base64Pic) => {
+        setMatchedStudent({ ...student, profilePic: base64Pic });
+        setSearchStatus("result");
+      });
     } else {
       setMatchedStudent(null);
       setSearchStatus("not_found");

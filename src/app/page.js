@@ -61,10 +61,30 @@ export default function Home() {
     setToastVisible(true);
   };
 
+  const convertToBase64 = async (url) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (err) {
+      console.error("Failed to convert image to base64:", err);
+      return url;
+    }
+  };
+
   const downloadTicket = async () => {
     if (isDownloading || !matchedStudent || !ticketRef.current) return;
     setIsDownloading(true);
     try {
+      // Warm up the rendering engine (especially needed for iOS Safari/WebKit)
+      await toPng(ticketRef.current, { cacheBust: true });
+      
+      // Perform the actual download capture
       const dataUrl = await toPng(ticketRef.current, {
         cacheBust: true,
         pixelRatio: 3,
@@ -88,7 +108,7 @@ export default function Home() {
     }
   };
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     if (e) e.preventDefault();
     
     const trimmedId = studentId.trim();
@@ -99,7 +119,9 @@ export default function Home() {
     );
 
     if (student) {
-      setMatchedStudent(student);
+      // Convert profile pic to base64 to prevent canvas-tainting / rendering bugs in iOS Safari
+      const base64Pic = await convertToBase64(student.profilePic);
+      setMatchedStudent({ ...student, profilePic: base64Pic });
       setSearchStatus("result");
       
       const templates = bubbleConfig[student.gender] || bubbleConfig.m;
