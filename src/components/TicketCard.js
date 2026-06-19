@@ -33,11 +33,10 @@ export default function TicketCard({
               alignItems: "center",
               gap: "6px",
               color: "rgba(255,255,255,0.95)",
-              lineHeight: 1,
             }}
           >
             {header.icon}
-            <span style={{ display: "inline-block", lineHeight: 1 }}>
+            <span>
               {header.title}
             </span>
           </span>

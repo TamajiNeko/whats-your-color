@@ -72,10 +72,8 @@ export default function Home() {
           canvas.height = targetSize;
           const ctx = canvas.getContext("2d");
           
-          // Clear canvas (transparent background)
           ctx.clearRect(0, 0, targetSize, targetSize);
           
-          // Fit image (like object-fit: contain)
           const wrh = img.width / img.height;
           let newWidth = targetSize;
           let newHeight = targetSize;
@@ -110,10 +108,8 @@ export default function Home() {
     if (isDownloading || !matchedStudent || !ticketRef.current) return;
     setIsDownloading(true);
     try {
-      // Warm up the rendering engine (especially needed for iOS Safari/WebKit)
       await toPng(ticketRef.current, { cacheBust: true });
       
-      // Perform the actual download capture
       const dataUrl = await toPng(ticketRef.current, {
         cacheBust: true,
         pixelRatio: 3,
@@ -148,7 +144,6 @@ export default function Home() {
     );
 
     if (student) {
-      // Convert profile pic to base64 to prevent canvas-tainting / rendering bugs in iOS Safari
       const base64Pic = await convertToBase64(student.profilePic);
       setMatchedStudent({ ...student, profilePic: base64Pic });
       setSearchStatus("result");
@@ -296,7 +291,7 @@ export default function Home() {
                 style={{ 
                   display: "inline-block", 
                   width: "fit-content",
-                  padding: "0", // removed padding to prevent extra space around the ticket
+                  padding: "0",
                   backgroundColor: "transparent" 
                 }}
               >
