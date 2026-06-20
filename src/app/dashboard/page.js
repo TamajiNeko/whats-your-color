@@ -316,21 +316,7 @@ export default function Dashboard() {
           sessionStorage.setItem("dashboard_pin", enteredPin);
         }
         setIsVerified(true);
-        const data = await res.json();
-        setSpreadsheets(data.spreadsheets || []);
-        setActiveConfig(data.activeConfig);
-        if (data.activeConfig) {
-          setSelectedFile({ url: data.activeConfig.activeUrl, name: data.activeConfig.activeName });
-          setIsLoadingData(true);
-          const resData = await fetch(`/api/dashboard?url=${encodeURIComponent(data.activeConfig.activeUrl)}`, {
-            headers: { "x-dashboard-pin": enteredPin }
-          });
-          const resJson = await resData.json();
-          if (resData.ok) {
-            setRows(resJson.rows || []);
-          }
-          setIsLoadingData(false);
-        }
+        fetchDashboardData();
       } else {
         setPinError("รหัส PIN ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง");
         setIsShaking(true);
