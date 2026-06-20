@@ -11,10 +11,10 @@ const lineSeedSans = localFont({
 export const metadata = {
   metadataBase: "https://whats-your-color.vercel.app",
   title: "น้องอยู่สีอะไร?",
-  description: "ระบบตรวจสอบสีกิจกรรมรับน้อง by NEKO & Zero @PSRU",
+  description: "ระบบตรวจสอบสีกิจกรรมรับน้อง 69 - คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มรพส.",
   openGraph: {
     title: "น้องอยู่สีอะไร?",
-    description: "ระบบตรวจสอบสีกิจกรรมรับน้อง by NEKO & Zero @PSRU",
+    description: "ระบบตรวจสอบสีกิจกรรมรับน้อง 69 - คณะวิศวกรรมศาสตร์และเทคโนโลยีอุตสาหกรรม มรพส.",
     images: [
       {
         url: "/thumbnail.png",

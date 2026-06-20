@@ -413,7 +413,7 @@ function TicketContent() {
         <a href="https://www.instagram.com/zero_wa_o" target="_blank" rel="noopener noreferrer">
           Zero
         </a>
-        <span> to Nong PSRU ♡</span>
+        <span> to Nong 69 ♡</span>
       </div>
     </div>
   );
