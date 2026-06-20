@@ -385,7 +385,7 @@ export default function Home() {
         <a href="https://www.instagram.com/zero_wa_o" target="_blank" rel="noopener noreferrer">
           Zero
         </a>
-        <span> to Nong 69 ♡</span>
+        <span> to Nong PSRU ♡</span>
       </div>
     </div>
   );
