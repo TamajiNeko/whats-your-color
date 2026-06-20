@@ -3,7 +3,8 @@
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import studentsData from "../../data/students.json";
+// Dynamic data loading instead of static import
+// import studentsData from "../../data/students.json";
 import TicketVisual from "../../components/TicketVisual";
 import TicketCard from "../../components/TicketCard";
 
@@ -24,6 +25,7 @@ function TicketContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
   
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [matchedStudent, setMatchedStudent] = useState(null);
   const [searchStatus, setSearchStatus] = useState("loading"); // loading, result, not_found, idle
   const [shareUrl, setShareUrl] = useState("");
@@ -92,23 +94,34 @@ function TicketContent() {
     if (!id) {
       setSearchStatus("idle");
       setMatchedStudent(null);
+      setIsDataLoaded(true);
       return;
     }
 
+    setSearchStatus("loading");
     const trimmedId = id.trim();
-    const student = studentsData.find(
-      (s) => s.studentId === trimmedId
-    );
 
-    if (student) {
-      convertToBase64(student.profilePic).then((base64Pic) => {
-        setMatchedStudent({ ...student, profilePic: base64Pic });
-        setSearchStatus("result");
+    fetch(`/api/students?id=${trimmedId}&t=${Date.now()}`)
+      .then((res) => res.json())
+      .then((student) => {
+        if (student) {
+          convertToBase64(student.profilePic).then((base64Pic) => {
+            setMatchedStudent({ ...student, profilePic: base64Pic });
+            setSearchStatus("result");
+            setIsDataLoaded(true);
+          });
+        } else {
+          setMatchedStudent(null);
+          setSearchStatus("not_found");
+          setIsDataLoaded(true);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load student:", err);
+        setMatchedStudent(null);
+        setSearchStatus("not_found");
+        setIsDataLoaded(true);
       });
-    } else {
-      setMatchedStudent(null);
-      setSearchStatus("not_found");
-    }
   }, [id]);
 
   const getBgClass = () => {

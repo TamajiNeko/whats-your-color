@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-
-import studentsData from "../data/students.json";
 import { bubbleConfig } from "../config/bubbleConfig";
 import TicketVisual from "../components/TicketVisual";
 import { toPng } from "html-to-image";
@@ -21,16 +19,31 @@ const defaultColors = [
 ];
 
 export default function Home() {
+  const [studentsData, setStudentsData] = useState([]);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [studentId, setStudentId] = useState("");
   const [searchStatus, setSearchStatus] = useState("idle");
+  const [isSearching, setIsSearching] = useState(false);
   const [matchedStudent, setMatchedStudent] = useState(null);
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastVisible, setToastVisible] = useState(false);
+
   const [bubbleText, setBubbleText] = useState("");
   const [defaultTheme, setDefaultTheme] = useState({ eng: "red", hex: "#dc2626" });
   const [isDownloading, setIsDownloading] = useState(false);
   const [ticketUrl, setTicketUrl] = useState("");
   const ticketRef = useRef(null);
+
+  useEffect(() => {
+    fetch(`/api/students?t=${Date.now()}`)
+      .then(res => res.json())
+      .then(data => {
+        setStudentsData(data);
+        setIsDataLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load students:", err);
+        setIsDataLoading(false);
+      });
+  }, []);
 
   const randomizeDefaultTheme = () => {
     const randomIndex = Math.floor(Math.random() * defaultColors.length);
@@ -47,19 +60,7 @@ export default function Home() {
     }
   }, [matchedStudent]);
 
-  useEffect(() => {
-    if (toastVisible) {
-      const timer = setTimeout(() => {
-        setToastVisible(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [toastVisible]);
 
-  const triggerToast = (msg) => {
-    setToastMessage(msg);
-    setToastVisible(true);
-  };
 
   const convertToBase64 = async (url, targetSize = 150) => {
     return new Promise((resolve) => {
@@ -139,22 +140,46 @@ export default function Home() {
     const trimmedId = studentId.trim();
     if (trimmedId.length !== 10) return;
 
-    const student = studentsData.find(
-      (s) => s.studentId === trimmedId
-    );
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/students?id=${trimmedId}&t=${Date.now()}`);
+      if (!res.ok) throw new Error("Search request failed");
+      const student = await res.json();
 
-    if (student) {
-      const base64Pic = await convertToBase64(student.profilePic);
-      setMatchedStudent({ ...student, profilePic: base64Pic });
-      setSearchStatus("result");
-      
-      const templates = bubbleConfig[student.gender] || bubbleConfig.m;
-      const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
-      setBubbleText(randomTemplate.replace("{color}", student.colorThai));
-    } else {
-      setMatchedStudent(null);
-      setSearchStatus("not_found");
-      setBubbleText("");
+      if (student) {
+        const base64Pic = await convertToBase64(student.profilePic);
+        setMatchedStudent({ ...student, profilePic: base64Pic });
+        setSearchStatus("result");
+        
+        const templates = bubbleConfig[student.gender] || bubbleConfig.m;
+        const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+        setBubbleText(randomTemplate.replace("{color}", student.colorThai));
+      } else {
+        setMatchedStudent(null);
+        setSearchStatus("not_found");
+        setBubbleText("");
+      }
+    } catch (err) {
+      console.error("Search failed, falling back to cached local data:", err);
+      const student = studentsData.find(
+        (s) => s.studentId === trimmedId
+      );
+
+      if (student) {
+        const base64Pic = await convertToBase64(student.profilePic);
+        setMatchedStudent({ ...student, profilePic: base64Pic });
+        setSearchStatus("result");
+        
+        const templates = bubbleConfig[student.gender] || bubbleConfig.m;
+        const randomTemplate = templates[Math.floor(Math.random() * templates.length)];
+        setBubbleText(randomTemplate.replace("{color}", student.colorThai));
+      } else {
+        setMatchedStudent(null);
+        setSearchStatus("not_found");
+        setBubbleText("");
+      }
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -191,9 +216,7 @@ export default function Home() {
 
   return (
     <div className={`transition-all duration-700 ease-in-out main-layout min-h-screen ${getBgClass()}`} style={getThemeStyles()}>
-      <div className={`toast ${toastVisible ? "show" : ""}`}>
-        {toastMessage}
-      </div>
+
 
       <div className="card-wrapper">
           {searchStatus === "idle" && (
@@ -217,8 +240,19 @@ export default function Home() {
                   required
                 />
               </div>
-              <button type="submit" className="btn-primary">
-                ค้นหาสีของน้อง
+              <button type="submit" className="btn-primary" disabled={isDataLoading || isSearching}>
+                {isSearching ? (
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ animation: "spin 1s linear infinite" }}>
+                      <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                    </svg>
+                    กำลังค้นหา...
+                  </span>
+                ) : isDataLoading ? (
+                  "กำลังโหลดข้อมูล..."
+                ) : (
+                  "ค้นหาสีของน้อง"
+                )}
               </button>
             </form>
           )}
