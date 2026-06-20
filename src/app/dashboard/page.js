@@ -497,8 +497,8 @@ export default function Dashboard() {
           }
         `}</style>
 
-        <div className="w-full max-w-md px-6 py-12 z-10">
-          <div className={`bg-white/80 backdrop-blur-xl border border-slate-200/80 shadow-xl rounded-3xl p-8 ${isShaking ? "shake-anim border-red-500/50" : ""}`}>
+        <div className="w-full max-w-md px-4 sm:px-6 py-12 z-10">
+          <div className={`bg-white/80 backdrop-blur-xl border border-slate-200/80 shadow-xl rounded-3xl p-6 sm:p-8 ${isShaking ? "shake-anim border-red-500/50" : ""}`}>
             <div className="flex flex-col items-center mb-6">
               <Link href="/" className="mb-4 active:scale-95 transition">
                 <img src="/icon.png" alt="Logo" className="w-16 h-16 rounded-2xl object-contain" />
@@ -515,7 +515,7 @@ export default function Dashboard() {
             </div>
 
             <form onSubmit={(e) => { e.preventDefault(); triggerVerify(pinValues.join("")); }}>
-              <div className="flex justify-between gap-2.5 my-6">
+              <div className="flex justify-between gap-1.5 sm:gap-2.5 my-6">
                 {pinValues.map((val, i) => (
                   <input
                     key={i}
@@ -527,7 +527,7 @@ export default function Dashboard() {
                     onKeyDown={(e) => handlePinKeyDown(i, e)}
                     onPaste={handlePinPaste}
                     autoComplete="off"
-                    className="w-12 h-14 font-mono text-xl font-bold text-center text-slate-800 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl transition duration-150 outline-none"
+                    className="w-full min-w-0 max-w-12 h-auto aspect-[6/7] font-mono text-lg sm:text-xl font-bold text-center text-slate-800 bg-slate-50 border border-slate-200 focus:bg-white focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 rounded-xl transition duration-150 outline-none"
                   />
                 ))}
               </div>
@@ -572,7 +572,7 @@ export default function Dashboard() {
     <div className="min-h-screen lg:h-screen lg:overflow-hidden flex flex-col bg-slate-50 text-slate-800 font-sans">
       {/* Header bar */}
       <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200/80 shrink-0">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <img src="/icon.png" alt="Logo" className="w-10 h-10 rounded-xl object-contain" />
             <div>
@@ -582,9 +582,9 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Link href="/" className="px-4 py-2 bg-white hover:bg-slate-50 active:scale-98 text-slate-600 font-semibold text-sm rounded-xl border border-slate-200 transition flex items-center gap-2">
+            <Link href="/" className="p-3 md:py-2 bg-white hover:bg-slate-50 active:scale-98 text-slate-600 font-semibold text-sm rounded-xl border border-slate-200 transition flex items-center gap-2">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-              กลับหน้าหลัก
+              <span className="hidden md:block">กลับหน้าหลัก</span>
             </Link>
           </div>
         </div>
@@ -758,14 +758,14 @@ export default function Dashboard() {
                 </div>
 
                 {selectedFile && (
-                  <div className="flex items-center gap-3 self-end md:self-auto">
-                    <div className="relative">
+                  <div className="flex items-center gap-3 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
                       <input 
                         type="text" 
-                        placeholder="ค้นหาแถวข้อมูล..." 
+                        placeholder="ค้นหาน้องๆ..." 
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-48 h-8 pl-8 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-emerald-400 transition font-medium text-slate-800"
+                        className="w-full md:w-48 h-8 pl-8 pr-3 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none focus:bg-white focus:border-emerald-400 transition font-medium text-slate-800"
                       />
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     </div>
@@ -773,7 +773,7 @@ export default function Dashboard() {
                     <button 
                       onClick={handleSaveChanges}
                       disabled={isSaving}
-                      className="h-8 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition disabled:opacity-50 disabled:pointer-events-none"
+                      className="h-8 px-4 bg-emerald-600 hover:bg-emerald-500 active:scale-98 text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition disabled:opacity-50 disabled:pointer-events-none shrink-0"
                     >
                       {isSaving ? (
                         <>
@@ -783,7 +783,7 @@ export default function Dashboard() {
                       ) : (
                         <>
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                          บันทึกการเปลี่ยนแปลง
+                          บันทึก
                         </>
                       )}
                     </button>
@@ -821,7 +821,7 @@ export default function Dashboard() {
                 
                 {/* Add Row Form */}
                 <form onSubmit={handleAddRow} className="p-4 bg-slate-50/50 border-b border-slate-100 flex flex-wrap items-center gap-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">เพิ่มนักศึกษา:</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">เพิ่มรายชื่อ:</span>
                   
                   <input 
                     type="text" 
