@@ -66,6 +66,16 @@ export async function GET(request) {
           return NextResponse.json({ error: 'Selected spreadsheet could not be found. It may have been deleted.' }, { status: 404 });
         }
         const { stream } = result;
+
+        if (searchParams.get('download') === 'true') {
+          return new Response(stream, {
+            headers: {
+              'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              'Content-Disposition': `attachment; filename="${encodeURIComponent(searchParams.get('name') || 'spreadsheet.xlsx')}"`,
+            },
+          });
+        }
+
         const response = new Response(stream);
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);

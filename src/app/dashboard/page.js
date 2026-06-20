@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 export default function Dashboard() {
@@ -8,6 +8,8 @@ export default function Dashboard() {
   const [activeConfig, setActiveConfig] = useState(null);
   const [isLoadingFiles, setIsLoadingFiles] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [rows, setRows] = useState([]);
@@ -150,12 +152,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    e.target.value = "";
-
+  const uploadFile = async (file) => {
     setIsUploading(true);
     const formData = new FormData();
     formData.append("file", file);
@@ -172,13 +169,59 @@ export default function Dashboard() {
           loadSpreadsheetData(data.activeConfig.activeUrl, data.activeConfig.activeName);
         }
       } else if (res.status !== 401) {
-        console.error(data.error || "อัปโหลดไฟล์ไม่สำเร็จ");
+        alert(data.error || "อัปโหลดไฟล์ไม่สำเร็จ");
       }
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการอัปโหลดไฟล์", err);
+      alert("เกิดข้อผิดพลาดในการอัปโหลดไฟล์");
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    e.target.value = "";
+    await uploadFile(file);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isUploading) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    if (isUploading) return;
+
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+
+    if (!file.name.toLowerCase().endsWith(".xlsx")) {
+      alert("กรุณาอัปโหลดไฟล์ Excel (.xlsx) เท่านั้น");
+      return;
+    }
+
+    await uploadFile(file);
   };
 
   const handleSelectActive = async (file) => {
@@ -234,6 +277,27 @@ export default function Dashboard() {
     } catch (err) {
       console.error("เกิดข้อผิดพลาดในการลบไฟล์", err);
       setIsLoadingFiles(false);
+    }
+  };
+
+  const handleDownloadFile = async (file) => {
+    try {
+      const res = await fetchWithPin(`/api/dashboard?url=${encodeURIComponent(file.url)}&download=true&name=${encodeURIComponent(file.name)}`);
+      if (!res.ok) {
+        throw new Error("ดาวน์โหลดไฟล์ไม่สำเร็จ");
+      }
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = file.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err) {
+      console.error("เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์", err);
+      alert("ดาวน์โหลดไฟล์ไม่สำเร็จ: " + err.message);
     }
   };
 
@@ -537,23 +601,40 @@ export default function Dashboard() {
             </div>
 
             {/* Upload Zone */}
-            <label className={`w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl py-8 px-4 text-center cursor-pointer transition bg-slate-50 hover:bg-emerald-50/10 relative overflow-hidden group ${isUploading ? "pointer-events-none opacity-50" : ""}`}>
-              <input type="file" accept=".xlsx" onChange={handleFileUpload} className="hidden" />
+            <div 
+              onDragOver={handleDragOver}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`w-full flex flex-col items-center justify-center border-2 border-dashed rounded-xl py-8 px-4 text-center cursor-pointer transition relative overflow-hidden group 
+                ${isDragging 
+                  ? "border-emerald-500 bg-emerald-50/20" 
+                  : "border-slate-200 hover:border-emerald-400 bg-slate-50 hover:bg-emerald-50/10"} 
+                ${isUploading ? "pointer-events-none opacity-50" : ""}`}
+            >
+              <input 
+                ref={fileInputRef}
+                type="file" 
+                accept=".xlsx" 
+                onChange={handleFileUpload} 
+                className="hidden" 
+              />
               {isUploading ? (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center pointer-events-none">
                   <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mb-3"></div>
                   <span className="text-xs font-semibold text-slate-500">กำลังอัปโหลดและประมวลผลไฟล์...</span>
                 </div>
               ) : (
-                <div className="flex flex-col items-center">
+                <div className="flex flex-col items-center pointer-events-none">
                   <div className="w-10 h-10 bg-slate-100 group-hover:bg-emerald-100 text-slate-500 group-hover:text-emerald-600 rounded-xl flex items-center justify-center mb-3 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
                   </div>
-                  <span className="text-xs font-bold text-slate-700">เลือกไฟล์ Excel ใหม่</span>
+                  <span className="text-xs font-bold text-slate-700">เลือกไฟล์ Excel หรือลากมาวางที่นี่</span>
                   <span className="text-[10px] text-slate-400 mt-1">รองรับไฟล์นามสกุล .xlsx</span>
                 </div>
               )}
-            </label>
+            </div>
           </div>
 
           <div className="bg-white border border-slate-200/80 rounded-2xl p-6 flex-1 flex flex-col lg:overflow-hidden lg:min-h-0">
@@ -641,15 +722,13 @@ export default function Dashboard() {
                           </button>
                         )}
 
-                        <a 
-                          href={file.url} 
-                          download={file.name}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="py-2 px-2.25 bg-white hover:bg-slate-50 text-slate-400 border border-slate-200 rounded-lg transition flex items-center justify-center"
+                        <button 
+                          onClick={() => handleDownloadFile(file)}
+                          className="py-2 px-2.25 bg-white hover:bg-slate-50 text-slate-400 border border-slate-200 rounded-lg transition flex items-center justify-center cursor-pointer"
+                          title="ดาวน์โหลดไฟล์ Excel"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        </a>
+                        </button>
 
                         <button 
                           onClick={() => handleDeleteFile(file)}
