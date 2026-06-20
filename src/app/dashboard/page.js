@@ -574,7 +574,7 @@ export default function Dashboard() {
             {isLoadingFiles ? (
               <div className="flex-1 flex flex-col items-center justify-center py-16">
                 <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-500 rounded-full animate-spin mb-3"></div>
-                <span className="text-xs text-slate-500 font-medium">กำลังดึงข้อมูลประวัติไฟล์...</span>
+                <span className="text-xs text-slate-500 font-medium">กำลังโหลดไฟล์จากคลาวด์...</span>
               </div>
             ) : spreadsheets.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
