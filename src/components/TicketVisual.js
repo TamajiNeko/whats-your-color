@@ -69,7 +69,7 @@ export default function TicketVisual({ student, ticketUrl, className = "", style
       style={style}
       header={{
         icon: ticketIcon,
-        title: "ENG PSRU boarding pass",
+        title: "EIT PSRU boarding pass",
         serial: `NO. ${student.studentId}`,
         bgColor: student.colorHex,
       }}
