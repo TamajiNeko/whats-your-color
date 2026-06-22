@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@vercel/analytics": "^2.0.1",
-    "@vercel/blob": "^2.4.1",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
     "konva": "^10.3.0",
